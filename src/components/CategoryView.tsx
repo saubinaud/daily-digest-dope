@@ -1,6 +1,4 @@
 
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { CategoryName, Category } from '@/types/news';
 import InsightCard from './InsightCard';
 import NewsCard from './NewsCard';
@@ -13,35 +11,57 @@ interface CategoryViewProps {
 
 const CategoryView = ({ categoryName, category, onBack }: CategoryViewProps) => {
   return (
-    <div className="min-h-screen bg-surface-primary px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center space-x-4 mb-8 animate-fade-in">
-          <Button
-            onClick={onBack}
-            variant="ghost"
-            className="p-2 hover:bg-surface-tertiary"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-3xl font-semibold text-text-primary">
-            {categoryName}
-          </h1>
+    <section className="min-h-screen py-24 px-6 relative scroll-section">
+      {/* Background gradient specific to category */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-news-accent-light/20 to-transparent" />
+      </div>
+
+      <div className="max-w-5xl mx-auto relative z-10">
+        {/* Category Header */}
+        <div className="mb-12 animate-fade-in">
+          <div className="glass-card p-8 rounded-3xl text-center">
+            <h1 className="heading-section mb-4">
+              {categoryName}
+            </h1>
+            <div className="flex items-center justify-center space-x-6 text-text-secondary">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-news-accent animate-pulse" />
+                <span className="text-sm font-medium">
+                  {category.articles.length} {category.articles.length === 1 ? 'artículo' : 'artículos'}
+                </span>
+              </div>
+              <div className="w-px h-4 bg-glass-border" />
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-favorite-star" />
+                <span className="text-sm font-medium">Actualizado hoy</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <InsightCard text={category.insight} />
+        {/* Insight Card */}
+        <div className="mb-12 animate-fade-in" style={{ animationDelay: '200ms' }}>
+          <InsightCard text={category.insight} />
+        </div>
         
-        <div className="space-y-6">
+        {/* Articles Grid */}
+        <div className="masonry">
           {category.articles.map((article, index) => (
             <div
               key={`${article.title}-${index}`}
-              style={{ animationDelay: `${index * 100}ms` }}
+              className="masonry-item animate-fade-in"
+              style={{ animationDelay: `${(index + 1) * 150}ms` }}
             >
               <NewsCard article={article} />
             </div>
           ))}
         </div>
+
+        {/* Bottom spacer */}
+        <div className="h-24" />
       </div>
-    </div>
+    </section>
   );
 };
 
