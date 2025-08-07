@@ -1,108 +1,50 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 45%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 43%;
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 217 91% 60%;
-    --radius: 1.5rem;
-    
-    /* Enhanced News App Design System */
-    --text-primary: 220 13% 8%;
-    --text-secondary: 220 9% 46%;
-    --text-accent: 220 91% 55%;
-    --surface-primary: 0 0% 100%;
-    --surface-secondary: 220 13% 98%;
-    --surface-tertiary: 220 13% 94%;
-    --surface-glass: 220 13% 98%;
-    --news-accent: 217 91% 60%;
-    --news-accent-light: 214 95% 95%;
-    --insight-bg: 214 100% 97%;
-    --favorite-star: 45 93% 58%;
-    
-    /* Category Colors */
-    --ai-primary: 271 91% 65%;
-    --ai-secondary: 271 100% 97%;
-    --marketing-primary: 142 76% 36%;
-    --marketing-secondary: 142 76% 96%;
-    --finance-primary: 32 95% 44%;
-    --finance-secondary: 32 95% 96%;
-    --international-primary: 221 83% 53%;
-    --international-secondary: 221 83% 96%;
-    
-    /* Interactive States */
-    --hover-overlay: 220 13% 8%;
-    --active-overlay: 220 91% 55%;
-    --glass-border: 220 13% 88%;
-  }
+    --background: 220 15% 8%;
+    --foreground: 220 10% 95%;
+    --card: 220 15% 10%;
+    --card-foreground: 220 10% 95%;
+    --popover: 220 15% 10%;
+    --popover-foreground: 220 10% 95%;
+    --primary: 263 85% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 220 10% 90%;
+    --muted: 220 15% 15%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 220 15% 18%;
+    --accent-foreground: 220 10% 90%;
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
+    --ring: 263 85% 65%;
+    --radius: 0.75rem;
 
-  .dark {
-    --background: 220 13% 6%;
-    --foreground: 220 13% 92%;
-    --card: 220 13% 7%;
-    --card-foreground: 220 13% 92%;
-    --popover: 220 13% 7%;
-    --popover-foreground: 220 13% 92%;
-    --primary: 217 91% 65%;
-    --primary-foreground: 220 13% 6%;
-    --secondary: 220 13% 12%;
-    --secondary-foreground: 220 9% 65%;
-    --muted: 220 13% 12%;
-    --muted-foreground: 220 9% 65%;
-    --accent: 217 91% 65%;
-    --accent-foreground: 220 13% 6%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 13% 15%;
-    --input: 220 13% 15%;
-    --ring: 217 91% 65%;
+    /* Custom design system variables */
+    --surface-primary: 220 15% 8%;
+    --surface-secondary: 220 15% 12%;
+    --surface-tertiary: 220 15% 18%;
     
-    /* Enhanced Dark Mode */
-    --text-primary: 220 13% 92%;
-    --text-secondary: 220 9% 65%;
-    --text-accent: 217 91% 70%;
-    --surface-primary: 220 13% 6%;
-    --surface-secondary: 220 13% 8%;
-    --surface-tertiary: 220 13% 12%;
-    --surface-glass: 220 13% 8%;
-    --news-accent: 217 91% 65%;
-    --news-accent-light: 217 50% 15%;
-    --insight-bg: 217 50% 12%;
-    --favorite-star: 45 93% 58%;
+    --text-primary: 220 10% 95%;
+    --text-secondary: 220 10% 70%;
+    --text-accent: 263 85% 75%;
     
-    /* Dark Category Colors */
-    --ai-primary: 271 91% 70%;
-    --ai-secondary: 271 50% 12%;
-    --marketing-primary: 142 50% 55%;
-    --marketing-secondary: 142 50% 12%;
-    --finance-primary: 32 95% 55%;
-    --finance-secondary: 32 50% 12%;
-    --international-primary: 221 83% 65%;
-    --international-secondary: 221 50% 12%;
+    --news-accent: 263 85% 65%;
+    --news-accent-light: 263 85% 85%;
     
-    --hover-overlay: 220 13% 92%;
-    --active-overlay: 217 91% 70%;
-    --glass-border: 220 13% 20%;
+    --glass-border: 220 10% 25%;
+    --favorite-star: 45 90% 60%;
+    
+    --category-ia: 263 85% 65%;
+    --category-marketing: 290 85% 65%;
+    --category-bolsa: 142 85% 60%;
+    --category-internacional: 25 85% 65%;
   }
 }
 
@@ -110,216 +52,118 @@
   * {
     @apply border-border;
   }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
   body {
-    @apply bg-surface-primary text-text-primary font-inter antialiased;
-    background: linear-gradient(135deg, hsl(var(--surface-primary)) 0%, hsl(var(--surface-secondary)) 100%);
-    min-height: 100vh;
-  }
-
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    @apply bg-surface-tertiary;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    @apply bg-text-secondary rounded-full;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-text-primary;
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    scroll-behavior: smooth;
   }
 }
 
+/* Enhanced Design System */
 @layer components {
-  /* Glass morphism effects */
+  /* Glass effects */
   .glass-card {
-    @apply bg-surface-glass/80 backdrop-blur-xl border border-glass-border/50 shadow-lg;
+    @apply bg-surface-secondary/40 backdrop-blur-xl border border-glass-border/30 shadow-2xl;
   }
   
-  .glass-hover {
-    @apply hover:bg-surface-glass/90 hover:shadow-xl transition-all duration-300;
+  .glass-navbar {
+    @apply bg-surface-primary/60 backdrop-blur-2xl border-b border-glass-border/20;
   }
 
-  /* Enhanced category cards */
-  .category-card {
-    @apply glass-card rounded-3xl p-8 cursor-pointer transform transition-all duration-500 hover:scale-105 hover:-translate-y-2;
-    background: linear-gradient(135deg, hsl(var(--surface-glass))/90 0%, hsl(var(--surface-secondary))/50 100%);
-    box-shadow: 0 10px 40px -10px hsl(var(--hover-overlay))/10;
+  /* Typography scales */
+  .heading-hero {
+    @apply text-6xl md:text-8xl font-bold tracking-tight bg-gradient-to-r from-text-primary via-text-accent to-text-primary bg-clip-text text-transparent;
   }
   
-  .category-card:hover {
-    box-shadow: 0 20px 60px -10px hsl(var(--hover-overlay))/20;
-  }
-
-  /* AI Category */
-  .category-ai {
-    background: linear-gradient(135deg, hsl(var(--ai-secondary)) 0%, hsl(var(--ai-primary))/10 100%);
-    border: 1px solid hsl(var(--ai-primary))/20;
+  .heading-section {
+    @apply text-4xl md:text-5xl font-bold tracking-tight text-text-primary;
   }
   
-  .category-ai:hover {
-    box-shadow: 0 20px 60px -10px hsl(var(--ai-primary))/30;
-  }
-
-  /* Marketing Category */
-  .category-marketing {
-    background: linear-gradient(135deg, hsl(var(--marketing-secondary)) 0%, hsl(var(--marketing-primary))/10 100%);
-    border: 1px solid hsl(var(--marketing-primary))/20;
-  }
-  
-  .category-marketing:hover {
-    box-shadow: 0 20px 60px -10px hsl(var(--marketing-primary))/30;
-  }
-
-  /* Finance Category */
-  .category-bolsa {
-    background: linear-gradient(135deg, hsl(var(--finance-secondary)) 0%, hsl(var(--finance-primary))/10 100%);
-    border: 1px solid hsl(var(--finance-primary))/20;
-  }
-  
-  .category-bolsa:hover {
-    box-shadow: 0 20px 60px -10px hsl(var(--finance-primary))/30;
-  }
-
-  /* International Category */
-  .category-internacional {
-    background: linear-gradient(135deg, hsl(var(--international-secondary)) 0%, hsl(var(--international-primary))/10 100%);
-    border: 1px solid hsl(var(--international-primary))/20;
-  }
-  
-  .category-internacional:hover {
-    box-shadow: 0 20px 60px -10px hsl(var(--international-primary))/30;
-  }
-
-  /* Enhanced news cards */
-  .news-card {
-    @apply glass-card rounded-2xl p-6 transition-all duration-300 hover:shadow-xl;
-    background: linear-gradient(135deg, hsl(var(--surface-glass))/95 0%, hsl(var(--surface-secondary))/80 100%);
-  }
-  
-  .news-card:hover {
-    @apply -translate-y-1;
-    box-shadow: 0 15px 50px -10px hsl(var(--hover-overlay))/15;
-  }
-
-  /* Enhanced insight card */
-  .insight-card {
-    @apply glass-card rounded-3xl p-8;
-    background: linear-gradient(135deg, hsl(var(--insight-bg))/90 0%, hsl(var(--news-accent-light))/50 100%);
-    border: 1px solid hsl(var(--news-accent))/20;
+  .heading-card {
+    @apply text-xl md:text-2xl font-semibold text-text-primary;
   }
 
   /* Button styles */
   .btn-primary {
-    @apply bg-gradient-to-r from-news-accent to-news-accent/80 text-primary-foreground px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg;
-    background: linear-gradient(135deg, hsl(var(--news-accent)) 0%, hsl(var(--news-accent))/80 100%);
-    box-shadow: 0 10px 30px -5px hsl(var(--news-accent))/30;
+    @apply bg-gradient-to-r from-news-accent to-news-accent/80 hover:from-news-accent/90 hover:to-news-accent/70 text-white border-0 shadow-lg hover:shadow-news-accent/30 transition-all duration-300;
   }
   
-  .btn-primary:hover {
-    box-shadow: 0 15px 40px -5px hsl(var(--news-accent))/40;
-  }
-
   .btn-glass {
-    @apply glass-card px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:scale-105;
+    @apply glass-card hover:bg-surface-tertiary/60 text-text-primary border-glass-border/40 hover:border-glass-border/60 transition-all duration-300;
   }
 
-  /* Typography improvements */
-  .heading-hero {
-    @apply text-6xl md:text-7xl font-black;
-    background: linear-gradient(135deg, hsl(var(--text-primary)) 0%, hsl(var(--text-accent)) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-family: 'Space Grotesk', sans-serif;
-    letter-spacing: -0.02em;
-  }
-
-  .heading-section {
-    @apply text-3xl md:text-4xl font-bold text-text-primary mb-6;
-    font-family: 'Space Grotesk', sans-serif;
-    letter-spacing: -0.01em;
-  }
-
-  /* Floating elements */
-  .floating-orb {
-    @apply absolute rounded-full opacity-20 animate-pulse;
-    background: linear-gradient(135deg, hsl(var(--news-accent))/30 0%, hsl(var(--news-accent))/10 100%);
-    filter: blur(20px);
-  }
-
-  /* Scroll snap */
+  /* Layout components */
   .scroll-container {
+    @apply scroll-smooth;
     scroll-snap-type: y mandatory;
   }
   
   .scroll-section {
     scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 
-  /* Enhanced animations */
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-  }
-  
-  @keyframes glow {
-    0%, 100% { box-shadow: 0 0 20px hsl(var(--news-accent))/20; }
-    50% { box-shadow: 0 0 40px hsl(var(--news-accent))/40; }
-  }
-  
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite alternate;
+  /* Floating elements */
+  .floating-orb {
+    @apply absolute rounded-full opacity-20 blur-3xl;
+    background: linear-gradient(135deg, hsl(var(--news-accent)) 0%, hsl(var(--category-marketing)) 50%, hsl(var(--category-bolsa)) 100%);
   }
 
-  /* Magazine-style layout helpers */
+  /* Card styles */
+  .news-card {
+    @apply glass-card p-6 rounded-2xl hover:bg-surface-secondary/60 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl;
+  }
+  
+  .insight-card {
+    @apply glass-card p-8 rounded-3xl hover:bg-surface-secondary/60 transition-all duration-300;
+  }
+  
+  .category-card {
+    @apply glass-card p-6 rounded-2xl hover:scale-[1.02] transition-all duration-500 cursor-pointer group overflow-hidden relative;
+  }
+
+  /* Grid layouts */
   .masonry {
-    columns: 1;
-    gap: 2rem;
-  }
-  
-  @media (min-width: 768px) {
-    .masonry {
-      columns: 2;
-    }
-  }
-  
-  @media (min-width: 1024px) {
-    .masonry {
-      columns: 3;
-    }
+    @apply columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6;
   }
   
   .masonry-item {
-    @apply break-inside-avoid mb-8;
+    @apply break-inside-avoid mb-6;
+  }
+
+  /* Navigation */
+  .nav-indicator {
+    @apply w-2 h-2 rounded-full bg-news-accent transition-all duration-300;
+  }
+  
+  .nav-indicator.active {
+    @apply w-8 bg-gradient-to-r from-news-accent to-category-marketing;
   }
 }
 
-/* Loading states */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.shimmer {
-  background: linear-gradient(90deg, 
-    hsl(var(--surface-tertiary)) 25%, 
-    hsl(var(--surface-secondary)) 50%, 
-    hsl(var(--surface-tertiary)) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
+::-webkit-scrollbar-track {
+  @apply bg-surface-primary;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-surface-tertiary rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-text-secondary;
+}
+
+/* Selection styling */
+::selection {
+  @apply bg-news-accent text-white;
+}
+
+/* Focus states */
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-news-accent;
 }
