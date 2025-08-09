@@ -1,10 +1,10 @@
 
 import { NewsDigest } from '@/types/news';
 
-// Use environment variable for API base URL, fallback to localhost for development
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+// Use current domain for API calls (MSW will intercept them)
+const API_BASE_URL = window.location.origin;
 
-console.log('🌐 API Base URL:', API_BASE_URL);
+console.log('🌐 API Base URL (MSW):', API_BASE_URL);
 
 export const newsApi = {
   // Save today's digest
@@ -32,7 +32,7 @@ export const newsApi = {
   // Get today's digest
   getTodayDigest: async (): Promise<NewsDigest> => {
     try {
-      console.log('🔍 Fetching digest from:', `${API_BASE_URL}/api/get-today`);
+      console.log('🔍 Fetching digest from MSW:', `${API_BASE_URL}/api/get-today`);
       
       const response = await fetch(`${API_BASE_URL}/api/get-today`, {
         method: 'GET',
@@ -50,7 +50,7 @@ export const newsApi = {
       }
       
       const data = await response.json();
-      console.log('✅ Digest fetched successfully');
+      console.log('✅ Digest fetched successfully from MSW');
       return data;
     } catch (error) {
       console.error('❌ Error fetching digest:', error);
@@ -77,7 +77,7 @@ export const newsApi = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ test: 'connection from frontend' }),
+        body: JSON.stringify({ test: 'connection from frontend with MSW' }),
       });
       return response.json();
     } catch (error) {

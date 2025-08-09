@@ -7,6 +7,7 @@ import Navigation from '@/components/Navigation';
 import Welcome from '@/components/Welcome';
 import CategoryCarousel from '@/components/CategoryCarousel';
 import CategoryView from '@/components/CategoryView';
+import WebhookInfo from '@/components/WebhookInfo';
 
 // Fallback mock data in case API is not available
 const fallbackDigest: NewsDigest = {
@@ -223,6 +224,8 @@ const Index = () => {
           />
         </div>
       )}
+      
+      <WebhookInfo />
     </div>
   );
 };
