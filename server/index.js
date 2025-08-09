@@ -1,17 +1,26 @@
-
 const express = require('express');
 const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Enhanced CORS configuration for n8n
+// Enhanced CORS configuration for n8n, Lovable, and local development
 const corsOptions = {
   origin: [
+    // Local development
     'http://localhost:5173',
-    'http://localhost:3000', 
+    'http://localhost:3000',
+    'http://localhost:8080',
+    
+    // Lovable preview domains
+    /\.lovable\.app$/,
+    /\.lovableproject\.com$/,
+    
+    // n8n Cloud domains
     'https://app.n8n.cloud',
     /\.n8n\.cloud$/,
+    
+    // Any localhost for development
     /localhost/
   ],
   credentials: true,
@@ -24,11 +33,15 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging middleware
+// Enhanced request logging middleware
 app.use((req, res, next) => {
-  console.log(`🔄 ${new Date().toISOString()} - ${req.method} ${req.path}`);
+  const timestamp = new Date().toISOString();
+  const origin = req.get('Origin') || 'unknown';
+  console.log(`🔄 ${timestamp} - ${req.method} ${req.path} from ${origin}`);
+  
   if (req.method === 'POST') {
-    console.log('📝 Request body preview:', JSON.stringify(req.body, null, 2).substring(0, 500));
+    const bodyPreview = JSON.stringify(req.body, null, 2).substring(0, 300);
+    console.log('📝 Request body preview:', bodyPreview + (bodyPreview.length >= 300 ? '...' : ''));
   }
   next();
 });
@@ -124,9 +137,10 @@ app.post('/api/news', (req, res) => {
   });
 });
 
-// GET /api/get-today - Get saved digest
+// Enhanced GET /api/get-today - Get saved digest with better logging
 app.get('/api/get-today', (req, res) => {
   console.log('🔍 Fetching digest...');
+  console.log('📍 Request origin:', req.get('Origin'));
   
   const digest = globalThis.digestCache;
   if (digest) {
@@ -134,11 +148,21 @@ app.get('/api/get-today', (req, res) => {
     console.log('📅 Digest date:', digest.date);
     console.log('🕐 Last update:', globalThis.lastUpdate);
     
+    // Check if digest is older than 24 hours
+    const lastUpdateTime = new Date(globalThis.lastUpdate);
+    const now = new Date();
+    const hoursSinceUpdate = (now - lastUpdateTime) / (1000 * 60 * 60);
+    
+    if (hoursSinceUpdate > 24) {
+      console.log('⚠️ Digest is older than 24 hours');
+    }
+    
     return res.status(200).json({
       ...digest,
       _metadata: {
         lastUpdate: globalThis.lastUpdate,
-        source: 'n8n'
+        source: 'n8n',
+        hoursOld: Math.round(hoursSinceUpdate * 100) / 100
       }
     });
   }
@@ -146,7 +170,7 @@ app.get('/api/get-today', (req, res) => {
   console.log('❌ No digest found in cache');
   return res.status(404).json({ 
     error: 'No digest available',
-    message: 'No digest has been received from n8n yet'
+    message: 'No digest has been received from n8n yet. Please ensure n8n is configured and running.'
   });
 });
 
@@ -215,6 +239,7 @@ app.use('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 News Digest API Server running on http://localhost:${PORT}`);
+  console.log(`🌐 Server ready for deployment to services like Render, Railway, or Vercel`);
   console.log(`📊 Available endpoints:`);
   console.log(`   POST http://localhost:${PORT}/api/news - Receive digest from n8n`);
   console.log(`   GET  http://localhost:${PORT}/api/get-today - Get current digest`);
@@ -222,4 +247,5 @@ app.listen(PORT, () => {
   console.log(`   GET  http://localhost:${PORT}/api/status - Server status`);
   console.log(`   GET  http://localhost:${PORT}/health - Health check`);
   console.log(`\n🔗 Ready to receive data from n8n!`);
+  console.log(`💡 To deploy: Push to GitHub and connect to Render/Railway/Vercel`);
 });

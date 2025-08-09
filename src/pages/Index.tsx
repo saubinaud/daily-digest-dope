@@ -66,10 +66,27 @@ const fallbackDigest: NewsDigest = {
 const Index = () => {
   const [currentSection, setCurrentSection] = useState<'welcome' | 'categories' | CategoryName>('welcome');
   const [activeCategory, setActiveCategory] = useState<CategoryName | null>(null);
+  const [serverStatus, setServerStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   
   const welcomeRef = useRef<HTMLDivElement>(null);
   const categoriesRef = useRef<HTMLDivElement>(null);
   const categoryViewRef = useRef<HTMLDivElement>(null);
+
+  // Check server status on mount
+  useEffect(() => {
+    const checkServerStatus = async () => {
+      try {
+        await newsApi.healthCheck();
+        setServerStatus('online');
+        console.log('✅ Server is online');
+      } catch (error) {
+        setServerStatus('offline');
+        console.log('❌ Server is offline, using fallback data');
+      }
+    };
+    
+    checkServerStatus();
+  }, []);
 
   // Fetch digest from API
   const { data: digest, isLoading, error } = useQuery({
@@ -91,14 +108,14 @@ const Index = () => {
   });
 
   useEffect(() => {
-    if (error) {
+    if (error && serverStatus === 'offline') {
       toast({
-        title: "Información",
-        description: "Usando datos de demostración - API no disponible",
+        title: "Modo sin conexión",
+        description: "Servidor API no disponible. Mostrando datos de demostración.",
         variant: "default"
       });
     }
-  }, [error]);
+  }, [error, serverStatus]);
 
   const scrollToSection = (section: 'welcome' | 'categories' | CategoryName) => {
     setCurrentSection(section);
@@ -145,9 +162,16 @@ const Index = () => {
             <div className="w-full h-2 bg-surface-tertiary rounded-full overflow-hidden mb-4">
               <div className="w-full h-full bg-gradient-to-r from-news-accent to-news-accent/80 animate-shimmer" />
             </div>
-            <p className="text-text-secondary">
-              Conectando con API...
+            <p className="text-text-secondary mb-2">
+              {serverStatus === 'checking' && 'Verificando conexión...'}
+              {serverStatus === 'online' && 'Conectando con API...'}
+              {serverStatus === 'offline' && 'Cargando datos de demostración...'}
             </p>
+            {serverStatus === 'offline' && (
+              <div className="text-xs text-yellow-500 bg-yellow-50 p-2 rounded-lg">
+                ⚠️ Servidor offline - Usando datos de prueba
+              </div>
+            )}
           </div>
         </div>
       </div>
