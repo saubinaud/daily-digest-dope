@@ -82,7 +82,7 @@ const Index = () => {
         console.log('✅ Server is online');
       } catch (error) {
         setServerStatus('offline');
-        console.log('❌ Server is offline, using fallback data');
+        console.log('❌ Server is offline, using MSW/fallback data');
       }
     };
     
@@ -99,8 +99,8 @@ const Index = () => {
         console.log('✅ Digest fetched successfully:', data);
         return data;
       } catch (apiError) {
-        console.warn('⚠️ API not available, using fallback data:', apiError);
-        // If API is not available, use fallback data
+        console.warn('⚠️ API not available or digest expired, using fallback data:', apiError);
+        // If API is not available or digest expired, use fallback data
         return fallbackDigest;
       }
     },
@@ -110,9 +110,12 @@ const Index = () => {
 
   useEffect(() => {
     if (error && serverStatus === 'offline') {
+      const isDemoMode = !import.meta.env.VITE_API_BASE_URL;
       toast({
-        title: "Modo sin conexión",
-        description: "Servidor API no disponible. Mostrando datos de demostración.",
+        title: isDemoMode ? "Modo Demo" : "Modo sin conexión",
+        description: isDemoMode 
+          ? "Usando MSW para demostración. Para producción, configura VITE_API_BASE_URL." 
+          : "Servidor API no disponible. Mostrando datos de demostración.",
         variant: "default"
       });
     }
@@ -150,6 +153,8 @@ const Index = () => {
   };
 
   if (isLoading) {
+    const isDemoMode = !import.meta.env.VITE_API_BASE_URL;
+    
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center animate-fade-in">
@@ -165,10 +170,15 @@ const Index = () => {
             </div>
             <p className="text-text-secondary mb-2">
               {serverStatus === 'checking' && 'Verificando conexión...'}
-              {serverStatus === 'online' && 'Conectando con API...'}
+              {serverStatus === 'online' && (isDemoMode ? 'Cargando desde MSW...' : 'Conectando con API...')}
               {serverStatus === 'offline' && 'Cargando datos de demostración...'}
             </p>
-            {serverStatus === 'offline' && (
+            {isDemoMode && (
+              <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded-lg">
+                🔧 Modo Demo (MSW) - Para producción configura VITE_API_BASE_URL
+              </div>
+            )}
+            {serverStatus === 'offline' && !isDemoMode && (
               <div className="text-xs text-yellow-500 bg-yellow-50 p-2 rounded-lg">
                 ⚠️ Servidor offline - Usando datos de prueba
               </div>
@@ -188,7 +198,8 @@ const Index = () => {
               No hay noticias disponibles
             </h1>
             <p className="text-text-secondary">
-              No se encontraron noticias para hoy. Inténtalo más tarde.
+              No se encontraron noticias para hoy o el digest ha expirado (TTL 24h). 
+              Envía un nuevo digest usando el webhook.
             </p>
           </div>
         </div>

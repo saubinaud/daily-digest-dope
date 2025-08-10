@@ -1,8 +1,43 @@
+
 const express = require('express');
 const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// TTL Store implementation
+class TTLStore {
+  constructor(ttlMs) {
+    this.data = new Map();
+    this.ttlMs = ttlMs;
+  }
+
+  set(key, value) {
+    this.data.set(key, {
+      value,
+      expiresAt: Date.now() + this.ttlMs
+    });
+  }
+
+  get(key) {
+    const entry = this.data.get(key);
+    if (!entry) return null;
+    
+    if (Date.now() > entry.expiresAt) {
+      this.data.delete(key);
+      return null;
+    }
+    
+    return entry.value;
+  }
+
+  clear(key) {
+    this.data.delete(key);
+  }
+}
+
+// 24 hours TTL store
+const digestStore = new TTLStore(24 * 60 * 60 * 1000);
 
 // Enhanced CORS configuration for n8n, Lovable, and local development
 const corsOptions = {
@@ -46,9 +81,61 @@ app.use((req, res, next) => {
   next();
 });
 
-// In-memory storage (lives while server instance is active)
-globalThis.digestCache = null;
-globalThis.lastUpdate = null;
+// Helper function to normalize payload to NewsDigest format
+const normalizeToNewsDigest = (payload) => {
+  // Check if it's already in NewsDigest format (has categories object)
+  if (payload.categories && typeof payload.categories === 'object') {
+    console.log('📦 Payload is already in NewsDigest format');
+    return {
+      date: payload.date || new Date().toISOString().split('T')[0],
+      categories: payload.categories
+    };
+  }
+
+  // Simplified format - normalize to NewsDigest
+  console.log('🔄 Converting simplified payload to NewsDigest format');
+  
+  const categoryName = payload.category || 'IA';
+  const mappedCategory = categoryName === 'Technology' ? 'IA' : 
+                         categoryName === 'Finance' ? 'Bolsa' : 
+                         categoryName === 'Business' ? 'Marketing' : 
+                         categoryName === 'Global' ? 'Internacional' : 
+                         'IA'; // Default fallback
+
+  // Convert reliability from 0-1 to 1-5 scale
+  const normalizedArticles = (payload.articles || []).map(article => ({
+    rank: article.rank || 1,
+    title: article.title || 'Sin título',
+    summary: article.summary || 'Sin resumen',
+    context: article.context || '',
+    reliability: Math.round((article.reliability || 0.5) * 5) || 3 // Convert 0-1 to 1-5
+  }));
+
+  // Create full NewsDigest structure
+  const newsDigest = {
+    date: new Date().toISOString().split('T')[0],
+    categories: {
+      IA: {
+        insight: mappedCategory === 'IA' ? (payload.insight || 'Avances en inteligencia artificial') : 'Sin información disponible',
+        articles: mappedCategory === 'IA' ? normalizedArticles : []
+      },
+      Marketing: {
+        insight: mappedCategory === 'Marketing' ? (payload.insight || 'Tendencias en marketing digital') : 'Sin información disponible',
+        articles: mappedCategory === 'Marketing' ? normalizedArticles : []
+      },
+      Bolsa: {
+        insight: mappedCategory === 'Bolsa' ? (payload.insight || 'Movimientos en los mercados') : 'Sin información disponible',
+        articles: mappedCategory === 'Bolsa' ? normalizedArticles : []
+      },
+      Internacional: {
+        insight: mappedCategory === 'Internacional' ? (payload.insight || 'Eventos internacionales relevantes') : 'Sin información disponible',
+        articles: mappedCategory === 'Internacional' ? normalizedArticles : []
+      }
+    }
+  };
+
+  return newsDigest;
+};
 
 // Helper function to validate digest structure
 const isValidDigest = (data) => {
@@ -57,51 +144,23 @@ const isValidDigest = (data) => {
     return false;
   }
 
-  if (!data.date || typeof data.date !== 'string') {
-    console.log('❌ Invalid digest: missing or invalid date');
-    return false;
+  // For simplified format
+  if (data.category && data.articles) {
+    console.log('✅ Valid simplified digest format');
+    return true;
   }
 
+  // For NewsDigest format
   if (!data.categories || typeof data.categories !== 'object') {
     console.log('❌ Invalid digest: missing or invalid categories');
     return false;
   }
 
-  const requiredCategories = ['IA', 'Marketing', 'Bolsa', 'Internacional'];
-  for (const category of requiredCategories) {
-    if (!data.categories[category]) {
-      console.log(`❌ Invalid digest: missing category ${category}`);
-      return false;
-    }
-    
-    const cat = data.categories[category];
-    if (!cat.insight || typeof cat.insight !== 'string') {
-      console.log(`❌ Invalid digest: missing insight for ${category}`);
-      return false;
-    }
-    
-    if (!Array.isArray(cat.articles)) {
-      console.log(`❌ Invalid digest: invalid articles array for ${category}`);
-      return false;
-    }
-
-    for (const article of cat.articles) {
-      if (!article.title || !article.summary || !article.context) {
-        console.log(`❌ Invalid digest: missing required fields in article for ${category}`);
-        return false;
-      }
-      if (typeof article.rank !== 'number' || typeof article.reliability !== 'number') {
-        console.log(`❌ Invalid digest: invalid numeric fields in article for ${category}`);
-        return false;
-      }
-    }
-  }
-
-  console.log('✅ Digest structure validation passed');
+  console.log('✅ Valid NewsDigest format');
   return true;
 };
 
-// POST /api/news - Save digest from n8n
+// POST /api/news - Save digest from n8n (supports both formats)
 app.post('/api/news', (req, res) => {
   console.log('🔄 Processing digest from n8n...');
   console.log('📦 Full request body:', JSON.stringify(req.body, null, 2));
@@ -111,66 +170,57 @@ app.post('/api/news', (req, res) => {
     console.log('❌ Digest validation failed');
     return res.status(400).json({ 
       error: 'Invalid digest structure',
-      message: 'The digest must contain date, categories (IA, Marketing, Bolsa, Internacional) with insights and articles'
+      message: 'The digest must be either simplified format (category, insight, articles) or full NewsDigest format'
     });
   }
 
-  // Save the digest
-  globalThis.digestCache = req.body;
-  globalThis.lastUpdate = new Date().toISOString();
+  // Normalize payload to NewsDigest format
+  const normalizedDigest = normalizeToNewsDigest(req.body);
   
-  console.log('✅ Digest saved successfully from n8n');
+  // Save the normalized digest with TTL
+  digestStore.set('today', normalizedDigest);
+  
+  console.log('✅ Digest saved successfully with TTL');
   console.log('📊 Digest stats:', {
-    date: req.body.date,
-    categories: Object.keys(req.body.categories),
-    totalArticles: Object.values(req.body.categories).reduce((acc, cat) => acc + cat.articles.length, 0)
+    date: normalizedDigest.date,
+    categories: Object.keys(normalizedDigest.categories),
+    totalArticles: Object.values(normalizedDigest.categories).reduce((acc, cat) => acc + cat.articles.length, 0)
   });
 
   return res.status(200).json({ 
     status: 'success',
-    message: 'Digest saved successfully',
-    timestamp: globalThis.lastUpdate,
+    message: 'Digest saved successfully with 24h TTL',
+    timestamp: new Date().toISOString(),
     stats: {
-      categories: Object.keys(req.body.categories).length,
-      totalArticles: Object.values(req.body.categories).reduce((acc, cat) => acc + cat.articles.length, 0)
+      categories: Object.keys(normalizedDigest.categories).length,
+      totalArticles: Object.values(normalizedDigest.categories).reduce((acc, cat) => acc + cat.articles.length, 0)
     }
   });
 });
 
-// Enhanced GET /api/get-today - Get saved digest with better logging
+// Enhanced GET /api/get-today - Get saved digest with TTL check
 app.get('/api/get-today', (req, res) => {
-  console.log('🔍 Fetching digest...');
+  console.log('🔍 Fetching digest from TTL store...');
   console.log('📍 Request origin:', req.get('Origin'));
   
-  const digest = globalThis.digestCache;
+  const digest = digestStore.get('today');
   if (digest) {
-    console.log('✅ Digest retrieved successfully');
+    console.log('✅ Digest retrieved successfully from TTL store');
     console.log('📅 Digest date:', digest.date);
-    console.log('🕐 Last update:', globalThis.lastUpdate);
-    
-    // Check if digest is older than 24 hours
-    const lastUpdateTime = new Date(globalThis.lastUpdate);
-    const now = new Date();
-    const hoursSinceUpdate = (now - lastUpdateTime) / (1000 * 60 * 60);
-    
-    if (hoursSinceUpdate > 24) {
-      console.log('⚠️ Digest is older than 24 hours');
-    }
     
     return res.status(200).json({
       ...digest,
       _metadata: {
-        lastUpdate: globalThis.lastUpdate,
-        source: 'n8n',
-        hoursOld: Math.round(hoursSinceUpdate * 100) / 100
+        source: 'ttl-store',
+        retrievedAt: new Date().toISOString()
       }
     });
   }
   
-  console.log('❌ No digest found in cache');
+  console.log('❌ No digest found in TTL store (expired or never set)');
   return res.status(404).json({ 
     error: 'No digest available',
-    message: 'No digest has been received from n8n yet. Please ensure n8n is configured and running.'
+    message: 'No digest available or digest has expired (24h TTL). Please send a new digest via POST /api/news'
   });
 });
 
@@ -183,24 +233,39 @@ app.post('/api/test-connection', (req, res) => {
     status: 'success',
     message: 'Connection test successful',
     timestamp: new Date().toISOString(),
-    receivedData: req.body
+    receivedData: req.body,
+    supportedFormats: [
+      'Simplified: { category, insight, articles[] }',
+      'NewsDigest: { date, categories: { IA, Marketing, Bolsa, Internacional } }'
+    ]
   });
 });
 
 // GET /api/status - Server status
 app.get('/api/status', (req, res) => {
-  const hasDigest = !!globalThis.digestCache;
+  const hasDigest = !!digestStore.get('today');
   
   res.status(200).json({
     status: 'running',
     hasDigest,
-    lastUpdate: globalThis.lastUpdate,
+    digestExpired: !hasDigest,
     timestamp: new Date().toISOString(),
     endpoints: {
-      'POST /api/news': 'Receive digest from n8n',
-      'GET /api/get-today': 'Get current digest',
+      'POST /api/news': 'Receive digest from n8n (both formats supported)',
+      'GET /api/get-today': 'Get current digest (24h TTL)',
       'POST /api/test-connection': 'Test n8n connection',
       'GET /api/status': 'Server status'
+    },
+    supportedPayloadFormats: {
+      simplified: {
+        category: 'string (Technology, Finance, Business, Global)',
+        insight: 'string',
+        articles: '[{rank, title, summary, context?, reliability: 0-1}]'
+      },
+      newsDigest: {
+        date: 'string (ISO)',
+        categories: 'object with IA, Marketing, Bolsa, Internacional'
+      }
     }
   });
 });
@@ -241,11 +306,11 @@ app.listen(PORT, () => {
   console.log(`🚀 News Digest API Server running on http://localhost:${PORT}`);
   console.log(`🌐 Server ready for deployment to services like Render, Railway, or Vercel`);
   console.log(`📊 Available endpoints:`);
-  console.log(`   POST http://localhost:${PORT}/api/news - Receive digest from n8n`);
-  console.log(`   GET  http://localhost:${PORT}/api/get-today - Get current digest`);
+  console.log(`   POST http://localhost:${PORT}/api/news - Receive digest from n8n (both formats)`);
+  console.log(`   GET  http://localhost:${PORT}/api/get-today - Get current digest (24h TTL)`);
   console.log(`   POST http://localhost:${PORT}/api/test-connection - Test n8n connection`);
   console.log(`   GET  http://localhost:${PORT}/api/status - Server status`);
   console.log(`   GET  http://localhost:${PORT}/health - Health check`);
-  console.log(`\n🔗 Ready to receive data from n8n!`);
+  console.log(`\n🔗 Ready to receive data from n8n! (supports both simplified and NewsDigest formats)`);
   console.log(`💡 To deploy: Push to GitHub and connect to Render/Railway/Vercel`);
 });
