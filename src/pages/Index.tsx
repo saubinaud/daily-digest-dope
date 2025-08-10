@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
@@ -156,19 +157,19 @@ const Index = () => {
     const isDemoMode = !import.meta.env.VITE_API_BASE_URL;
     
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center animate-fade-in">
-          <div className="glass-card p-8 rounded-3xl max-w-md">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-r from-news-accent to-news-accent/80 flex items-center justify-center animate-pulse-glow">
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl max-w-md shadow-lg border border-white/20">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
               <div className="w-8 h-8 rounded-full bg-white/30 animate-pulse" />
             </div>
-            <h2 className="text-2xl font-bold text-text-primary mb-4">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
               Cargando noticias
             </h2>
-            <div className="w-full h-2 bg-surface-tertiary rounded-full overflow-hidden mb-4">
-              <div className="w-full h-full bg-gradient-to-r from-news-accent to-news-accent/80 animate-shimmer" />
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
+              <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse" />
             </div>
-            <p className="text-text-secondary mb-2">
+            <p className="text-gray-600 mb-2">
               {serverStatus === 'checking' && 'Verificando conexión...'}
               {serverStatus === 'online' && (isDemoMode ? 'Cargando desde MSW...' : 'Conectando con API...')}
               {serverStatus === 'offline' && 'Cargando datos de demostración...'}
@@ -179,7 +180,7 @@ const Index = () => {
               </div>
             )}
             {serverStatus === 'offline' && !isDemoMode && (
-              <div className="text-xs text-yellow-500 bg-yellow-50 p-2 rounded-lg">
+              <div className="text-xs text-yellow-600 bg-yellow-50 p-2 rounded-lg">
                 ⚠️ Servidor offline - Usando datos de prueba
               </div>
             )}
@@ -189,26 +190,10 @@ const Index = () => {
     );
   }
 
-  if (!digest) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="glass-card p-8 rounded-3xl max-w-md">
-            <h1 className="text-2xl font-bold text-text-primary mb-4">
-              No hay noticias disponibles
-            </h1>
-            <p className="text-text-secondary">
-              No se encontraron noticias para hoy o el digest ha expirado (TTL 24h). 
-              Envía un nuevo digest usando el webhook.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const currentDigest = digest || fallbackDigest;
 
   return (
-    <div className="scroll-container">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <Navigation 
         currentSection={currentSection}
         onNavigate={handleNavigate}
@@ -221,7 +206,7 @@ const Index = () => {
       
       <div ref={categoriesRef}>
         <CategoryCarousel 
-          data={digest.categories}
+          data={currentDigest.categories}
           onOpenCategory={handleOpenCategory}
         />
       </div>
@@ -230,7 +215,7 @@ const Index = () => {
         <div ref={categoryViewRef}>
           <CategoryView
             categoryName={activeCategory}
-            category={digest.categories[activeCategory]}
+            category={currentDigest.categories[activeCategory]}
             onBack={() => scrollToSection('categories')}
           />
         </div>
